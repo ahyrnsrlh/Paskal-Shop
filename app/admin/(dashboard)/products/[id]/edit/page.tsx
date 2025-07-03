@@ -1,90 +1,100 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, Loader2, Upload, X, ImageIcon } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Loader2, Upload, X, ImageIcon } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 interface Product {
-  id: string
-  name: string
-  description: string
-  price: number
-  stock: number
-  category: string
-  image: string
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  stock: number;
+  category: string;
+  image: string;
 }
 
-export default function EditProductPage({ params }: { params: { id: string } }) {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [loading, setLoading] = useState(false)
-  const [loadingProduct, setLoadingProduct] = useState(true)
+export default function EditProductPage({
+  params,
+}: {
+  params: { id: string };
+}) {
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [loadingProduct, setLoadingProduct] = useState(true);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
     stock: "",
     category: "",
-  })
-  const [currentImage, setCurrentImage] = useState("")
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string>("")
+  });
+  const [currentImage, setCurrentImage] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch(`/api/admin/products/${params.id}`)
+        const response = await fetch(`/api/admin/products/${params.id}`);
         if (response.ok) {
-          const product: Product = await response.json()
+          const product: Product = await response.json();
           setFormData({
             name: product.name,
             description: product.description || "",
             price: product.price.toString(),
             stock: product.stock.toString(),
             category: product.category,
-          })
-          setCurrentImage(product.image || "")
+          });
+          setCurrentImage(product.image || "");
         } else {
           toast({
             title: "Error",
             description: "Gagal mengambil data produk",
             variant: "destructive",
-          })
-          router.push("/admin/products")
+          });
+          router.push("/admin/products");
         }
       } catch (error) {
         toast({
           title: "Error",
           description: "Terjadi kesalahan saat mengambil data produk",
           variant: "destructive",
-        })
-        router.push("/admin/products")
+        });
+        router.push("/admin/products");
       } finally {
-        setLoadingProduct(false)
+        setLoadingProduct(false);
       }
-    }
+    };
 
-    fetchProduct()
-  }, [params.id, router, toast])
+    fetchProduct();
+  }, [params.id, router, toast]);
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
-    }))
-  }
+      [field]: value,
+    }));
+  };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
       // Check file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
@@ -92,59 +102,65 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           title: "File terlalu besar",
           description: "Ukuran file maksimal 5MB",
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
       // Check file type
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
       if (!allowedTypes.includes(file.type)) {
         toast({
           title: "Format file tidak didukung",
           description: "Gunakan format JPG, PNG, GIF, atau WebP",
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
-      setImageFile(file)
-      
+      setImageFile(file);
+
       // Create preview
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const removeNewImage = () => {
-    setImageFile(null)
-    setImagePreview("")
-  }
+    setImageFile(null);
+    setImagePreview("");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      let imagePath = currentImage || "/placeholder.svg?height=400&width=400"
-      
+      let imagePath = currentImage || "/placeholder.svg?height=400&width=400";
+
       // Upload new image if file is selected
       if (imageFile) {
-        const imageFormData = new FormData()
-        imageFormData.append("image", imageFile)
-        
+        const imageFormData = new FormData();
+        imageFormData.append("image", imageFile);
+
         const imageResponse = await fetch("/api/admin/products/upload-image", {
           method: "POST",
           body: imageFormData,
-        })
+        });
 
         if (imageResponse.ok) {
-          const imageData = await imageResponse.json()
-          imagePath = imageData.imagePath
+          const imageData = await imageResponse.json();
+          imagePath = imageData.imagePath;
         } else {
-          throw new Error("Gagal mengupload gambar")
+          throw new Error("Gagal mengupload gambar");
         }
       }
 
@@ -161,32 +177,33 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           category: formData.category,
           image: imagePath,
         }),
-      })
+      });
 
       if (response.ok) {
         toast({
           title: "Produk berhasil diperbarui",
           description: "Data produk telah diperbarui",
-        })
-        router.push("/admin/products")
+        });
+        router.push("/admin/products");
       } else {
-        const error = await response.json()
+        const error = await response.json();
         toast({
           title: "Gagal memperbarui produk",
           description: error.message || "Terjadi kesalahan",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Gagal memperbarui produk",
-        description: error instanceof Error ? error.message : "Terjadi kesalahan koneksi",
+        description:
+          error instanceof Error ? error.message : "Terjadi kesalahan koneksi",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loadingProduct) {
     return (
@@ -206,7 +223,7 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -231,7 +248,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-gray-700">Nama Produk *</Label>
+                <Label htmlFor="name" className="text-gray-700">
+                  Nama Produk *
+                </Label>
                 <Input
                   id="name"
                   type="text"
@@ -244,8 +263,16 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category" className="text-gray-700">Kategori *</Label>
-                <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)} required>
+                <Label htmlFor="category" className="text-gray-700">
+                  Kategori *
+                </Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) =>
+                    handleInputChange("category", value)
+                  }
+                  required
+                >
                   <SelectTrigger className="border-gray-200 focus:border-green-500 focus:ring-green-500 rounded-lg">
                     <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
@@ -263,7 +290,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="price" className="text-gray-700">Harga (IDR) *</Label>
+                <Label htmlFor="price" className="text-gray-700">
+                  Harga (IDR) *
+                </Label>
                 <Input
                   id="price"
                   type="number"
@@ -278,7 +307,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="stock" className="text-gray-700">Stok *</Label>
+                <Label htmlFor="stock" className="text-gray-700">
+                  Stok *
+                </Label>
                 <Input
                   id="stock"
                   type="number"
@@ -293,19 +324,25 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-gray-700">Deskripsi</Label>
+              <Label htmlFor="description" className="text-gray-700">
+                Deskripsi
+              </Label>
               <Textarea
                 id="description"
                 placeholder="Masukkan deskripsi produk"
                 rows={4}
                 value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
                 className="border-gray-200 focus:border-green-500 focus:ring-green-500 rounded-lg"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="image" className="text-gray-700">Gambar Produk</Label>
+              <Label htmlFor="image" className="text-gray-700">
+                Gambar Produk
+              </Label>
               <div className="space-y-4">
                 {/* Current Image */}
                 {currentImage && !imagePreview && (
@@ -345,7 +382,9 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                       <X className="h-4 w-4" />
                     </Button>
                     <div className="mt-2">
-                      <p className="text-sm text-green-600">Gambar baru (belum disimpan)</p>
+                      <p className="text-sm text-green-600">
+                        Gambar baru (belum disimpan)
+                      </p>
                     </div>
                   </div>
                 )}
@@ -374,19 +413,23 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                     </div>
                   </div>
                 )}
-                
+
                 {!imagePreview && (
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => document.getElementById('image-upload')?.click()}
+                      onClick={() =>
+                        document.getElementById("image-upload")?.click()
+                      }
                     >
                       <Upload className="h-4 w-4 mr-2" />
                       {currentImage ? "Ganti Gambar" : "Pilih Gambar"}
                     </Button>
                     {!currentImage && (
-                      <span className="text-sm text-gray-500">atau gunakan placeholder jika kosong</span>
+                      <span className="text-sm text-gray-500">
+                        atau gunakan placeholder jika kosong
+                      </span>
                     )}
                   </div>
                 )}
@@ -394,7 +437,11 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
             </div>
 
             <div className="flex gap-4 pt-4">
-              <Button type="submit" disabled={loading} className="bg-green-600 hover:bg-green-700 rounded-lg">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="bg-green-600 hover:bg-green-700 rounded-lg"
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -404,7 +451,12 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
                   "Perbarui Produk"
                 )}
               </Button>
-              <Button type="button" variant="outline" asChild className="border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg">
+              <Button
+                type="button"
+                variant="outline"
+                asChild
+                className="border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg"
+              >
                 <Link href="/admin/products">Batal</Link>
               </Button>
             </div>
@@ -412,5 +464,5 @@ export default function EditProductPage({ params }: { params: { id: string } }) 
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

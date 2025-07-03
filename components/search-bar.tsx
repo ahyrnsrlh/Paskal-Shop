@@ -1,45 +1,48 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { Search } from "lucide-react"
-import { X } from "lucide-react"
+import { Search } from "lucide-react";
+import { X } from "lucide-react";
 
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useState, useEffect } from "react"
-import { SearchSuggestions } from "./search-suggestions"
-import { useRef } from "react"
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+import { SearchSuggestions } from "./search-suggestions";
+import { useRef } from "react";
 
 interface SearchBarProps {
-  onSearch: (query: string) => void
+  onSearch: (query: string) => void;
 }
 
 export function SearchBar({ onSearch }: SearchBarProps) {
-  const [query, setQuery] = useState("")
-  const [showSuggestions, setShowSuggestions] = useState(false)
-  const searchRef = useRef<HTMLDivElement>(null)
+  const [query, setQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
-        setShowSuggestions(false)
+      if (
+        searchRef.current &&
+        !searchRef.current.contains(event.target as Node)
+      ) {
+        setShowSuggestions(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
-    return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [])
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleSearch = (event: React.FormEvent) => {
-    event.preventDefault()
-    onSearch(query)
-  }
+    event.preventDefault();
+    onSearch(query);
+  };
 
   const clearSearch = () => {
-    setQuery("")
-    onSearch("")
-  }
+    setQuery("");
+    onSearch("");
+  };
 
   return (
     <div ref={searchRef} className="relative flex-1 max-w-md">
@@ -71,11 +74,11 @@ export function SearchBar({ onSearch }: SearchBarProps) {
       <SearchSuggestions
         query={query}
         onSelect={(suggestion) => {
-          setQuery(suggestion)
-          setShowSuggestions(false)
+          setQuery(suggestion);
+          setShowSuggestions(false);
         }}
         isVisible={showSuggestions}
       />
     </div>
-  )
+  );
 }

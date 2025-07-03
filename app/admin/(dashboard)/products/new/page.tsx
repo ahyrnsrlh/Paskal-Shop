@@ -1,41 +1,47 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useToast } from "@/hooks/use-toast"
-import { ArrowLeft, Loader2, Upload, X, ImageIcon } from "lucide-react"
-import Link from "next/link"
-import Image from "next/image"
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useToast } from "@/hooks/use-toast";
+import { ArrowLeft, Loader2, Upload, X, ImageIcon } from "lucide-react";
+import Link from "next/link";
+import Image from "next/image";
 
 export default function NewProductPage() {
-  const router = useRouter()
-  const { toast } = useToast()
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
     price: "",
     stock: "",
     category: "",
-  })
-  const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string>("")
+  });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
-    }))
-  }
+      [field]: value,
+    }));
+  };
 
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]
+    const file = event.target.files?.[0];
     if (file) {
       // Check file size (max 5MB)
       if (file.size > 5 * 1024 * 1024) {
@@ -43,59 +49,65 @@ export default function NewProductPage() {
           title: "File terlalu besar",
           description: "Ukuran file maksimal 5MB",
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
       // Check file type
-      const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp"]
+      const allowedTypes = [
+        "image/jpeg",
+        "image/jpg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
       if (!allowedTypes.includes(file.type)) {
         toast({
           title: "Format file tidak didukung",
           description: "Gunakan format JPG, PNG, GIF, atau WebP",
           variant: "destructive",
-        })
-        return
+        });
+        return;
       }
 
-      setImageFile(file)
-      
+      setImageFile(file);
+
       // Create preview
-      const reader = new FileReader()
+      const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
     }
-  }
+  };
 
   const removeImage = () => {
-    setImageFile(null)
-    setImagePreview("")
-  }
+    setImageFile(null);
+    setImagePreview("");
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
-      let imagePath = "/placeholder.svg?height=400&width=400"
-      
+      let imagePath = "/placeholder.svg?height=400&width=400";
+
       // Upload image first if file is selected
       if (imageFile) {
-        const imageFormData = new FormData()
-        imageFormData.append("image", imageFile)
-        
+        const imageFormData = new FormData();
+        imageFormData.append("image", imageFile);
+
         const imageResponse = await fetch("/api/admin/products/upload-image", {
           method: "POST",
           body: imageFormData,
-        })
+        });
 
         if (imageResponse.ok) {
-          const imageData = await imageResponse.json()
-          imagePath = imageData.imagePath
+          const imageData = await imageResponse.json();
+          imagePath = imageData.imagePath;
         } else {
-          throw new Error("Gagal mengupload gambar")
+          throw new Error("Gagal mengupload gambar");
         }
       }
 
@@ -112,32 +124,33 @@ export default function NewProductPage() {
           category: formData.category,
           image: imagePath,
         }),
-      })
+      });
 
       if (response.ok) {
         toast({
           title: "Produk berhasil ditambahkan",
           description: "Produk baru telah ditambahkan ke katalog",
-        })
-        router.push("/admin/products")
+        });
+        router.push("/admin/products");
       } else {
-        const error = await response.json()
+        const error = await response.json();
         toast({
           title: "Gagal menambahkan produk",
           description: error.message || "Terjadi kesalahan",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
       toast({
         title: "Gagal menambahkan produk",
-        description: error instanceof Error ? error.message : "Terjadi kesalahan koneksi",
+        description:
+          error instanceof Error ? error.message : "Terjadi kesalahan koneksi",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="space-y-6">
@@ -149,8 +162,12 @@ export default function NewProductPage() {
             </Link>
           </Button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Tambah Produk Baru</h1>
-            <p className="text-gray-600">Buat produk baru untuk ditambahkan ke katalog</p>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Tambah Produk Baru
+            </h1>
+            <p className="text-gray-600">
+              Buat produk baru untuk ditambahkan ke katalog
+            </p>
           </div>
         </div>
       </div>
@@ -176,7 +193,13 @@ export default function NewProductPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="category">Kategori *</Label>
-                <Select value={formData.category} onValueChange={(value) => handleInputChange("category", value)} required>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) =>
+                    handleInputChange("category", value)
+                  }
+                  required
+                >
                   <SelectTrigger>
                     <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
@@ -223,7 +246,9 @@ export default function NewProductPage() {
                 placeholder="Masukkan deskripsi produk"
                 rows={4}
                 value={formData.description}
-                onChange={(e) => handleInputChange("description", e.target.value)}
+                onChange={(e) =>
+                  handleInputChange("description", e.target.value)
+                }
               />
             </div>
 
@@ -273,25 +298,33 @@ export default function NewProductPage() {
                     </div>
                   </div>
                 )}
-                
+
                 {!imagePreview && (
                   <div className="flex items-center gap-2">
                     <Button
                       type="button"
                       variant="outline"
-                      onClick={() => document.getElementById('image-upload')?.click()}
+                      onClick={() =>
+                        document.getElementById("image-upload")?.click()
+                      }
                     >
                       <Upload className="h-4 w-4 mr-2" />
                       Pilih Gambar
                     </Button>
-                    <span className="text-sm text-gray-500">atau gunakan placeholder jika kosong</span>
+                    <span className="text-sm text-gray-500">
+                      atau gunakan placeholder jika kosong
+                    </span>
                   </div>
                 )}
               </div>
             </div>
 
             <div className="flex gap-4 pt-4">
-              <Button type="submit" disabled={loading} className="bg-green-600 hover:bg-green-700">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="bg-green-600 hover:bg-green-700"
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -309,5 +342,5 @@ export default function NewProductPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

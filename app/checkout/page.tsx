@@ -1,25 +1,25 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { useCart } from "@/components/cart-provider"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { useToast } from "@/hooks/use-toast"
-import { Loader2 } from "lucide-react"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useCart } from "@/components/cart-provider";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 export default function CheckoutPage() {
-  const { cart, cartTotal, clearCart } = useCart()
-  const router = useRouter()
-  const { toast } = useToast()
-  const [loading, setLoading] = useState(false)
-  const [mounted, setMounted] = useState(false)
+  const { cart, cartTotal, clearCart } = useCart();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   const [formData, setFormData] = useState({
     customerName: "",
@@ -29,25 +29,27 @@ export default function CheckoutPage() {
     city: "",
     postalCode: "",
     paymentMethod: "transfer",
-  })
+  });
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
-    }).format(price)
-  }
+    }).format(price);
+  };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
-    })
-  }
+    });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
       const orderData = {
@@ -58,7 +60,7 @@ export default function CheckoutPage() {
           quantity: item.quantity,
           price: item.price,
         })),
-      }
+      };
 
       const response = await fetch("/api/orders", {
         method: "POST",
@@ -66,65 +68,64 @@ export default function CheckoutPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(orderData),
-      })
+      });
 
       if (response.ok) {
-        const order = await response.json()
-        console.log("Order created successfully:", order)
-        
+        const order = await response.json();
+        console.log("Order created successfully:", order);
+
         // Ensure we have order ID
         if (!order.id) {
-          throw new Error("Order ID not received")
+          throw new Error("Order ID not received");
         }
-        
+
         // Show success message
         toast({
           title: "Pesanan berhasil dibuat!",
           description: "Mengarahkan ke halaman pembayaran...",
-        })
-        
+        });
+
         // Clear cart
-        clearCart()
-        
+        clearCart();
+
         // Try both methods for redirect
-        const paymentUrl = `/payment/${order.id}`
-        console.log("Redirecting to:", paymentUrl)
-        
+        const paymentUrl = `/payment/${order.id}`;
+        console.log("Redirecting to:", paymentUrl);
+
         // Use router.push with replace
-        router.replace(paymentUrl)
-        
+        router.replace(paymentUrl);
+
         // Fallback with window.location after short delay
         setTimeout(() => {
           if (window.location.pathname !== paymentUrl) {
-            window.location.href = paymentUrl
+            window.location.href = paymentUrl;
           }
-        }, 500)
-        
+        }, 500);
       } else {
-        const errorData = await response.text()
-        console.error("Order creation failed:", response.status, errorData)
-        throw new Error("Failed to create order")
+        const errorData = await response.text();
+        console.error("Order creation failed:", response.status, errorData);
+        throw new Error("Failed to create order");
       }
     } catch (error) {
       toast({
         title: "Terjadi kesalahan",
         description: "Gagal membuat pesanan. Silakan coba lagi.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (mounted && cart.length === 0) {
-      router.push("/cart")
+      router.push("/cart");
     }
-  }, [cart.length, router, mounted])
+  }, [cart.length, router, mounted]);
 
   if (!mounted) {
     return (
@@ -134,7 +135,7 @@ export default function CheckoutPage() {
           <p>Memuat halaman checkout...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (cart.length === 0) {
@@ -142,10 +143,12 @@ export default function CheckoutPage() {
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Keranjang Kosong</h1>
-          <p className="text-gray-600 mb-6">Silakan tambahkan produk ke keranjang terlebih dahulu</p>
+          <p className="text-gray-600 mb-6">
+            Silakan tambahkan produk ke keranjang terlebih dahulu
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -195,13 +198,25 @@ export default function CheckoutPage() {
 
               <div>
                 <Label htmlFor="address">Alamat Lengkap *</Label>
-                <Textarea id="address" name="address" value={formData.address} onChange={handleInputChange} required />
+                <Textarea
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  required
+                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="city">Kota *</Label>
-                  <Input id="city" name="city" value={formData.city} onChange={handleInputChange} required />
+                  <Input
+                    id="city"
+                    name="city"
+                    value={formData.city}
+                    onChange={handleInputChange}
+                    required
+                  />
                 </div>
                 <div>
                   <Label htmlFor="postalCode">Kode Pos *</Label>
@@ -219,7 +234,9 @@ export default function CheckoutPage() {
                 <Label>Metode Pembayaran *</Label>
                 <RadioGroup
                   value={formData.paymentMethod}
-                  onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, paymentMethod: value })
+                  }
                   className="mt-2"
                 >
                   <div className="flex items-center space-x-2">
@@ -237,7 +254,12 @@ export default function CheckoutPage() {
                 </RadioGroup>
               </div>
 
-              <Button type="submit" className="w-full" size="lg" disabled={loading}>
+              <Button
+                type="submit"
+                className="w-full"
+                size="lg"
+                disabled={loading}
+              >
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Buat Pesanan
               </Button>
@@ -267,5 +289,5 @@ export default function CheckoutPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-import { PrismaClient } from "@prisma/client"
-import bcrypt from "bcryptjs"
+import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
   // Seed Admin
-  const hashedPassword = await bcrypt.hash("admin123", 10)
+  const hashedPassword = await bcrypt.hash("admin123", 10);
 
   await prisma.admin.upsert({
     where: { username: "admin" },
@@ -15,7 +15,7 @@ async function main() {
       password: hashedPassword,
       name: "Administrator",
     },
-  })
+  });
 
   // Seed Products
   const products = [
@@ -67,24 +67,24 @@ async function main() {
       category: "Electronics",
       image: "/placeholder.svg?height=400&width=400",
     },
-  ]
+  ];
 
   // Clear existing products first
-  await prisma.product.deleteMany({})
+  await prisma.product.deleteMany({});
 
   // Create products
   await prisma.product.createMany({
     data: products,
-  })
+  });
 
-  console.log("Database seeded successfully!")
+  console.log("Database seeded successfully!");
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

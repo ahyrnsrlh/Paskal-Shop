@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "prisma generate && next build",
+    "build": "npx prisma generate && next build",
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "postinstall": "prisma generate",
+    "postinstall": "npx prisma generate",
     "db:seed": "tsx prisma/seed.ts",
     "db:push": "prisma db push",
     "db:generate": "prisma generate"

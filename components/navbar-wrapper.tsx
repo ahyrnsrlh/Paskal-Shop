@@ -1,14 +1,14 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { Navbar } from "./navbar"
+import { useEffect, useState } from "react";
+import { Navbar } from "./navbar";
 
 export function NavbarWrapper() {
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
   if (!mounted) {
     // Return a skeleton navbar during hydration
@@ -26,8 +26,8 @@ export function NavbarWrapper() {
           </div>
         </div>
       </nav>
-    )
+    );
   }
 
-  return <Navbar />
+  return <Navbar />;
 }

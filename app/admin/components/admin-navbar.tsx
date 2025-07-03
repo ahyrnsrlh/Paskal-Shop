@@ -1,40 +1,45 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { Shield, User, LogOut } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Shield, User, LogOut } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface AdminNavbarProps {
   admin: {
-    id: string
-    username: string
-    name: string
-  }
+    id: string;
+    username: string;
+    name: string;
+  };
 }
 
 export function AdminNavbar({ admin }: AdminNavbarProps) {
-  const router = useRouter()
-  const { toast } = useToast()
+  const router = useRouter();
+  const { toast } = useToast();
 
   const handleLogout = async () => {
     try {
-      await fetch("/api/admin/logout", { method: "POST" })
+      await fetch("/api/admin/logout", { method: "POST" });
       toast({
         title: "Logout berhasil",
         description: "Anda telah keluar dari panel admin",
-      })
-      router.push("/admin/login")
+      });
+      router.push("/admin/login");
     } catch (error) {
       toast({
         title: "Terjadi kesalahan",
         description: "Gagal logout",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   return (
     <nav className="bg-white border-b border-gray-200 shadow-sm">
@@ -46,16 +51,32 @@ export function AdminNavbar({ admin }: AdminNavbarProps) {
           </Link>
 
           <div className="hidden md:flex items-center space-x-4">
-            <Button asChild variant="ghost" className="text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg">
+            <Button
+              asChild
+              variant="ghost"
+              className="text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg"
+            >
               <Link href="/admin">Dashboard</Link>
             </Button>
-            <Button asChild variant="ghost" className="text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg">
+            <Button
+              asChild
+              variant="ghost"
+              className="text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg"
+            >
               <Link href="/admin/products">Produk</Link>
             </Button>
-            <Button asChild variant="ghost" className="text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg">
+            <Button
+              asChild
+              variant="ghost"
+              className="text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg"
+            >
               <Link href="/admin/orders">Pesanan</Link>
             </Button>
-            <Button asChild variant="ghost" className="text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg">
+            <Button
+              asChild
+              variant="ghost"
+              className="text-gray-700 hover:text-green-600 hover:bg-green-50 rounded-lg"
+            >
               <Link href="/admin/payments">Pembayaran</Link>
             </Button>
           </div>
@@ -77,5 +98,5 @@ export function AdminNavbar({ admin }: AdminNavbarProps) {
         </DropdownMenu>
       </div>
     </nav>
-  )
+  );
 }

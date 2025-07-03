@@ -1,86 +1,86 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { useParams, useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Separator } from "@/components/ui/separator"
-import { Badge } from "@/components/ui/badge"
-import { 
-  FileText, 
-  Download, 
-  Printer, 
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import {
+  FileText,
+  Download,
+  Printer,
   ArrowLeft,
   CheckCircle,
   Store,
   MapPin,
   Phone,
   Mail,
-  Calendar
-} from "lucide-react"
+  Calendar,
+} from "lucide-react";
 
 interface OrderItem {
-  id: string
-  quantity: number
-  price: number
+  id: string;
+  quantity: number;
+  price: number;
   product: {
-    id: string
-    name: string
-    image: string | null
-  }
+    id: string;
+    name: string;
+    image: string | null;
+  };
 }
 
 interface Order {
-  id: string
-  customerName: string
-  customerEmail: string
-  customerPhone: string | null
-  address: string
-  city: string
-  postalCode: string
-  paymentMethod: string
-  totalAmount: number
-  status: string
-  paymentStatus: string
-  createdAt: string
-  paidAt: string | null
-  orderItems: OrderItem[]
+  id: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string | null;
+  address: string;
+  city: string;
+  postalCode: string;
+  paymentMethod: string;
+  totalAmount: number;
+  status: string;
+  paymentStatus: string;
+  createdAt: string;
+  paidAt: string | null;
+  orderItems: OrderItem[];
 }
 
 export default function InvoicePage() {
-  const params = useParams()
-  const router = useRouter()
-  const [order, setOrder] = useState<Order | null>(null)
-  const [loading, setLoading] = useState(true)
+  const params = useParams();
+  const router = useRouter();
+  const [order, setOrder] = useState<Order | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const orderId = params.id as string
+  const orderId = params.id as string;
 
   useEffect(() => {
-    fetchOrder()
-  }, [orderId])
+    fetchOrder();
+  }, [orderId]);
 
   const fetchOrder = async () => {
     try {
-      const response = await fetch(`/api/orders/${orderId}`)
+      const response = await fetch(`/api/orders/${orderId}`);
       if (response.ok) {
-        const orderData = await response.json()
-        setOrder(orderData)
+        const orderData = await response.json();
+        setOrder(orderData);
       } else {
-        router.push("/orders")
+        router.push("/orders");
       }
     } catch (error) {
-      router.push("/orders")
+      router.push("/orders");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("id-ID", {
       style: "currency",
       currency: "IDR",
-    }).format(price)
-  }
+    }).format(price);
+  };
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("id-ID", {
@@ -88,18 +88,18 @@ export default function InvoicePage() {
       month: "long",
       day: "numeric",
       hour: "2-digit",
-      minute: "2-digit"
-    })
-  }
+      minute: "2-digit",
+    });
+  };
 
   const handlePrint = () => {
-    window.print()
-  }
+    window.print();
+  };
 
   const handleDownload = () => {
     // In a real app, you'd generate and download a PDF
-    window.print()
-  }
+    window.print();
+  };
 
   if (loading) {
     return (
@@ -109,7 +109,7 @@ export default function InvoicePage() {
           <p className="text-gray-600">Memuat invoice...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (!order || order.paymentStatus !== "PAYMENT_CONFIRMED") {
@@ -119,15 +119,19 @@ export default function InvoicePage() {
           <FileText className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h1 className="text-2xl font-bold mb-2">Invoice Tidak Tersedia</h1>
           <p className="text-gray-600 mb-6">
-            Invoice hanya tersedia untuk pesanan yang sudah dikonfirmasi pembayarannya
+            Invoice hanya tersedia untuk pesanan yang sudah dikonfirmasi
+            pembayarannya
           </p>
-          <Button onClick={() => router.push("/orders")} className="bg-green-600 hover:bg-green-700">
+          <Button
+            onClick={() => router.push("/orders")}
+            className="bg-green-600 hover:bg-green-700"
+          >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Kembali ke Pesanan
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -155,7 +159,10 @@ export default function InvoicePage() {
             <Printer className="h-4 w-4 mr-2" />
             Print
           </Button>
-          <Button onClick={handleDownload} className="bg-green-600 hover:bg-green-700">
+          <Button
+            onClick={handleDownload}
+            className="bg-green-600 hover:bg-green-700"
+          >
             <Download className="h-4 w-4 mr-2" />
             Download
           </Button>
@@ -170,14 +177,18 @@ export default function InvoicePage() {
                 <Store className="h-6 w-6" />
                 Paskal Shop
               </CardTitle>
-              <p className="text-sm text-gray-600 mt-1">Toko Online Terpercaya</p>
+              <p className="text-sm text-gray-600 mt-1">
+                Toko Online Terpercaya
+              </p>
             </div>
             <div className="text-right">
               <div className="flex items-center gap-2 justify-end">
                 <CheckCircle className="h-5 w-5 text-green-600" />
                 <Badge className="bg-green-600 hover:bg-green-700">LUNAS</Badge>
               </div>
-              <p className="text-sm text-gray-600 mt-1">Invoice #{order.id.slice(-8)}</p>
+              <p className="text-sm text-gray-600 mt-1">
+                Invoice #{order.id.slice(-8)}
+              </p>
             </div>
           </div>
         </CardHeader>
@@ -193,7 +204,9 @@ export default function InvoicePage() {
               <div className="space-y-1 text-sm">
                 <p className="font-medium">{order.customerName}</p>
                 <p className="text-gray-600">{order.address}</p>
-                <p className="text-gray-600">{order.city}, {order.postalCode}</p>
+                <p className="text-gray-600">
+                  {order.city}, {order.postalCode}
+                </p>
                 {order.customerPhone && (
                   <p className="text-gray-600 flex items-center gap-1">
                     <Phone className="h-3 w-3" />
@@ -233,7 +246,10 @@ export default function InvoicePage() {
                 </div>
                 <div className="flex justify-between">
                   <span>Status:</span>
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <Badge
+                    variant="outline"
+                    className="bg-green-50 text-green-700 border-green-200"
+                  >
                     {order.status === "DELIVERED" && "Selesai"}
                     {order.status === "SHIPPED" && "Dikirim"}
                     {order.status === "PROCESSING" && "Diproses"}
@@ -251,7 +267,10 @@ export default function InvoicePage() {
             <h3 className="font-semibold mb-4">Detail Pesanan</h3>
             <div className="space-y-3">
               {order.orderItems.map((item, index) => (
-                <div key={item.id} className="flex justify-between items-center py-2 border-b last:border-b-0">
+                <div
+                  key={item.id}
+                  className="flex justify-between items-center py-2 border-b last:border-b-0"
+                >
                   <div className="flex-1">
                     <p className="font-medium">{item.product.name}</p>
                     <p className="text-sm text-gray-600">
@@ -259,7 +278,9 @@ export default function InvoicePage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="font-medium">{formatPrice(item.price * item.quantity)}</p>
+                    <p className="font-medium">
+                      {formatPrice(item.price * item.quantity)}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -290,13 +311,18 @@ export default function InvoicePage() {
           {/* Footer */}
           <div className="text-center text-sm text-gray-600 space-y-2">
             <p>Terima kasih telah berbelanja di Paskal Shop!</p>
-            <p>Untuk pertanyaan lebih lanjut, hubungi customer service kami di support@paskalshop.com</p>
+            <p>
+              Untuk pertanyaan lebih lanjut, hubungi customer service kami di
+              support@paskalshop.com
+            </p>
             <div className="print:block hidden mt-6 pt-4 border-t">
-              <p className="text-xs">Dokumen ini dicetak secara otomatis dan sah tanpa tanda tangan</p>
+              <p className="text-xs">
+                Dokumen ini dicetak secara otomatis dan sah tanpa tanda tangan
+              </p>
             </div>
           </div>
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

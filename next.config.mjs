@@ -10,8 +10,8 @@ const nextConfig = {
     unoptimized: true,
   },
   experimental: {
-    serverComponentsExternalPackages: ['@prisma/client', 'prisma']
-  }
-}
+    serverComponentsExternalPackages: ["@prisma/client", "prisma"],
+  },
+};
 
-export default nextConfig
+export default nextConfig;
