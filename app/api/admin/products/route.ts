@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifySession } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export async function POST(request: NextRequest) {
   try {
@@ -32,6 +33,10 @@ export async function POST(request: NextRequest) {
         image: image || "/placeholder.svg?height=400&width=400",
       },
     });
+
+    // Revalidate homepage and product pages to update cache
+    revalidatePath("/");
+    revalidatePath("/products");
 
     return NextResponse.json({
       message: "Product created successfully",

@@ -36,16 +36,21 @@ async function getFeaturedProducts({
       break;
   }
 
-  const products = await prisma.product.findMany({
-    where,
-    orderBy,
-    take: limit,
-  });
+  try {
+    const products = await prisma.product.findMany({
+      where,
+      orderBy,
+      take: limit,
+    });
 
-  return products.map((product: any) => ({
-    ...product,
-    price: Number(product.price),
-  }));
+    return products.map((product: any) => ({
+      ...product,
+      price: Number(product.price),
+    }));
+  } catch (error) {
+    console.error("Error fetching featured products:", error);
+    return [];
+  }
 }
 
 export async function FeaturedProducts({

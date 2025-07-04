@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+// Force revalidate every 60 seconds to ensure fresh data
+export const revalidate = 60;
+
 interface Product {
   id: string;
   name: string;

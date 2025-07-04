@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { verifySession } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 
 export async function GET(
   request: NextRequest,
@@ -84,6 +85,11 @@ export async function PUT(
       },
     });
 
+    // Revalidate homepage and product pages to update cache
+    revalidatePath("/");
+    revalidatePath("/products");
+    revalidatePath(`/products/${params.id}`);
+
     return NextResponse.json({
       message: "Product updated successfully",
       product: {
@@ -127,6 +133,10 @@ export async function DELETE(
     await prisma.product.delete({
       where: { id: params.id },
     });
+
+    // Revalidate homepage and product pages to update cache
+    revalidatePath("/");
+    revalidatePath("/products");
 
     return NextResponse.json({
       message: "Product deleted successfully",
