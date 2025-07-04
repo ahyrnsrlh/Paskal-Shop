@@ -88,26 +88,51 @@ export async function POST(
       order: updatedOrder,
     });
   } catch (error) {
-    console.error("❌ Error uploading payment proof:", error);
+    console.error("❌ ERROR DETAILS:", {
+      message: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      orderIdParam: params.id,
+      timestamp: new Date().toISOString()
+    });
     
     // Better error response based on error type
     if (error instanceof Error) {
-      if (error.message.includes('Cloudinary')) {
+      const errorMessage = error.message.toLowerCase()
+      
+      if (errorMessage.includes('cloudinary_not_configured')) {
         return NextResponse.json(
-          { error: "Failed to upload image. Please try again." },
+          { error: "Upload service not configured. Please contact support." },
+          { status: 503 }
+        );
+      }
+      
+      if (errorMessage.includes('invalid_file') || errorMessage.includes('file_too_large')) {
+        return NextResponse.json(
+          { error: error.message.split(':')[1]?.trim() || "Invalid file" },
+          { status: 400 }
+        );
+      }
+      
+      if (errorMessage.includes('cloudinary') || errorMessage.includes('upload')) {
+        return NextResponse.json(
+          { error: "Failed to upload image. Please check your internet connection and try again." },
           { status: 500 }
         );
       }
-      if (error.message.includes('credentials')) {
+      
+      if (errorMessage.includes('order') || errorMessage.includes('database')) {
         return NextResponse.json(
-          { error: "Server configuration error. Please contact support." },
+          { error: "Database error. Please try again." },
           { status: 500 }
         );
       }
     }
     
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error. Please try again later.",
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     );
   }
