@@ -4,14 +4,14 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  // Seed Admin
-  const hashedPassword = await bcrypt.hash("admin123", 10);
+  // Seed Admin - Use strong password for production
+  const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD || "admin123", 12);
 
   await prisma.admin.upsert({
-    where: { username: "admin" },
+    where: { username: process.env.ADMIN_USERNAME || "admin" },
     update: {},
     create: {
-      username: "admin",
+      username: process.env.ADMIN_USERNAME || "admin",
       password: hashedPassword,
       name: "Administrator",
     },

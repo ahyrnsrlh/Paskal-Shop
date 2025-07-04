@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
-import { existsSync } from "fs";
+import { uploadToCloudinary } from "@/lib/cloudinary";
 
 export async function POST(
   request: NextRequest,
@@ -18,6 +16,23 @@ export async function POST(
       return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
     }
 
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: "Invalid file type. Please upload JPG, PNG, or GIF" },
+        { status: 400 }
+      );
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json(
+        { error: "File too large. Maximum size is 5MB" },
+        { status: 400 }
+      );
+    }
+
     // Check if order exists
     const order = await prisma.order.findUnique({
       where: { id: orderId },
@@ -27,33 +42,14 @@ export async function POST(
       return NextResponse.json({ error: "Order not found" }, { status: 404 });
     }
 
-    // Create uploads directory if it doesn't exist
-    const uploadsDir = join(
-      process.cwd(),
-      "public",
-      "uploads",
-      "payment-proofs"
-    );
-    if (!existsSync(uploadsDir)) {
-      await mkdir(uploadsDir, { recursive: true });
-    }
-
-    // Generate unique filename
-    const timestamp = Date.now();
-    const originalName = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
-    const filename = `${orderId}_${timestamp}_${originalName}`;
-    const filepath = join(uploadsDir, filename);
-
-    // Save file
-    const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
-    await writeFile(filepath, buffer);
+    // Upload to Cloudinary
+    const cloudinaryUrl = await uploadToCloudinary(file, 'payment-proofs');
 
     // Update order with payment proof
     const updatedOrder = await prisma.order.update({
       where: { id: orderId },
       data: {
-        paymentProof: `/uploads/payment-proofs/${filename}`,
+        paymentProof: cloudinaryUrl,
         paymentStatus: "PAYMENT_UPLOADED",
         paymentNotes: paymentNotes || null,
       },
