@@ -22,7 +22,14 @@ export async function uploadToCloudinary(
       CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? 'SET' : 'MISSING',
       CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'MISSING',
     })
-    throw new Error('Cloudinary credentials not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your environment variables.')
+    
+    // For development/testing - return a placeholder URL
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('🔧 Development mode: Using placeholder image URL')
+      return 'https://via.placeholder.com/400x300/cccccc/666666?text=Upload+Placeholder'
+    }
+    
+    throw new Error('❌ CLOUDINARY NOT CONFIGURED! Please add Cloudinary credentials to Vercel environment variables.')
   }
 
   try {
