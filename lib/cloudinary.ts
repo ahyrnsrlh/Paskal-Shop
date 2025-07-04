@@ -1,10 +1,11 @@
 import { v2 as cloudinary } from 'cloudinary'
 
-// Configure Cloudinary with fallback handling
+// Configure Cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME || 'your-cloud-name',
-  api_key: process.env.CLOUDINARY_API_KEY || 'your-api-key',
-  api_secret: process.env.CLOUDINARY_API_SECRET || 'your-api-secret',
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
 })
 
 export { cloudinary }
@@ -16,23 +17,23 @@ export async function uploadToCloudinary(
 ): Promise<string> {
   // Check if Cloudinary is properly configured
   if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-    console.error('Cloudinary credentials not configured');
-    console.error('Available env vars:', {
-      CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
-      CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? 'SET' : 'NOT SET',
-      CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'NOT SET',
-    });
-    throw new Error('Cloudinary credentials not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your environment variables.');
+    console.error('❌ Cloudinary credentials missing:', {
+      CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME ? 'SET' : 'MISSING',
+      CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? 'SET' : 'MISSING',
+      CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'MISSING',
+    })
+    throw new Error('Cloudinary credentials not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your environment variables.')
   }
 
   try {
-    console.log('Starting Cloudinary upload for folder:', folder);
+    console.log('📤 Starting Cloudinary upload...')
     console.log('File details:', {
       name: file.name,
       size: file.size,
-      type: file.type
-    });
-    
+      type: file.type,
+      folder: `paskal-shop/${folder}`
+    })
+
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
