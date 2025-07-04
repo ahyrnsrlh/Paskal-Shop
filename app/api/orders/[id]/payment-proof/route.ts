@@ -8,6 +8,11 @@ export async function POST(
 ) {
   console.log("=== Payment Proof Upload API Called ===");
   console.log("Order ID:", params.id);
+  console.log("Environment check:", {
+    hasCloudinaryName: !!process.env.CLOUDINARY_CLOUD_NAME,
+    hasCloudinaryKey: !!process.env.CLOUDINARY_API_KEY,
+    hasCloudinarySecret: !!process.env.CLOUDINARY_API_SECRET,
+  });
   
   try {
     const formData = await request.formData();
@@ -96,8 +101,19 @@ export async function POST(
     });
   } catch (error) {
     console.error("Error uploading payment proof:", error);
+    
+    // More detailed error logging
+    if (error instanceof Error) {
+      console.error("Error name:", error.name);
+      console.error("Error message:", error.message);
+      console.error("Error stack:", error.stack);
+    }
+    
     return NextResponse.json(
-      { error: "Internal server error" },
+      { 
+        error: "Internal server error",
+        details: error instanceof Error ? error.message : "Unknown error"
+      },
       { status: 500 }
     );
   }

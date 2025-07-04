@@ -17,11 +17,22 @@ export async function uploadToCloudinary(
   // Check if Cloudinary is properly configured
   if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
     console.error('Cloudinary credentials not configured');
+    console.error('Available env vars:', {
+      CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+      CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY ? 'SET' : 'NOT SET',
+      CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET ? 'SET' : 'NOT SET',
+    });
     throw new Error('Cloudinary credentials not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your environment variables.');
   }
 
   try {
     console.log('Starting Cloudinary upload for folder:', folder);
+    console.log('File details:', {
+      name: file.name,
+      size: file.size,
+      type: file.type
+    });
+    
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
     
@@ -46,7 +57,7 @@ export async function uploadToCloudinary(
     });
   } catch (error) {
     console.error('Error in uploadToCloudinary:', error);
-    throw new Error('Failed to upload image to Cloudinary');
+    throw new Error(`Failed to upload image to Cloudinary: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
