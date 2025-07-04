@@ -277,14 +277,9 @@ export default function EditProductPage({
                     <SelectValue placeholder="Pilih kategori" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Electronics">Electronics</SelectItem>
-                    <SelectItem value="Fashion">Fashion</SelectItem>
-                    <SelectItem value="Home">Home</SelectItem>
-                    <SelectItem value="Books">Books</SelectItem>
-                    <SelectItem value="Sports">Sports</SelectItem>
-                    <SelectItem value="Toys">Toys</SelectItem>
-                    <SelectItem value="Beauty">Beauty</SelectItem>
-                    <SelectItem value="Food">Food</SelectItem>
+                    <SelectItem value="Tapis">Tapis</SelectItem>
+                    <SelectItem value="Miniatur">Miniatur</SelectItem>
+                    <SelectItem value="Patung">Patung</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
