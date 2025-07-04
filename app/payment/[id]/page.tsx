@@ -182,16 +182,24 @@ export default function PaymentPage() {
     setUploading(true);
 
     try {
+      console.log("Starting upload...", { orderId, fileSize: paymentProof.size, fileType: paymentProof.type });
+      
       const formData = new FormData();
       formData.append("paymentProof", paymentProof);
       formData.append("paymentNotes", paymentNotes);
 
+      console.log("Making request to:", `/api/orders/${orderId}/payment-proof`);
+      
       const response = await fetch(`/api/orders/${orderId}/payment-proof`, {
         method: "POST",
         body: formData,
       });
 
+      console.log("Response status:", response.status);
+      
       if (response.ok) {
+        const result = await response.json();
+        console.log("Upload successful:", result);
         toast({
           title: "Berhasil!",
           description:
@@ -201,9 +209,16 @@ export default function PaymentPage() {
         setPaymentProof(null);
         setPaymentNotes("");
       } else {
-        throw new Error("Upload failed");
+        const errorText = await response.text();
+        console.error("Upload failed:", response.status, errorText);
+        toast({
+          title: "Error",
+          description: `Gagal mengupload: ${response.status} - ${errorText}`,
+          variant: "destructive",
+        });
       }
     } catch (error) {
+      console.error("Upload error:", error);
       toast({
         title: "Error",
         description: "Gagal mengupload bukti pembayaran",

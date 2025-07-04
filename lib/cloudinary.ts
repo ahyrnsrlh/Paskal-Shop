@@ -16,13 +16,14 @@ export async function uploadToCloudinary(
 ): Promise<string> {
   // Check if Cloudinary is properly configured
   if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
-    console.error('Cloudinary credentials not configured')
-    throw new Error('Cloudinary credentials not configured')
+    console.error('Cloudinary credentials not configured');
+    throw new Error('Cloudinary credentials not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your environment variables.');
   }
 
   try {
-    const arrayBuffer = await file.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+    console.log('Starting Cloudinary upload for folder:', folder);
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
     
     return new Promise((resolve, reject) => {
       cloudinary.uploader.upload_stream(
@@ -34,15 +35,18 @@ export async function uploadToCloudinary(
         },
         (error, result) => {
           if (error) {
-            reject(error)
+            console.error('Cloudinary upload error:', error);
+            reject(new Error(`Cloudinary upload failed: ${error.message}`));
           } else {
-            resolve(result?.secure_url || '')
+            console.log('Cloudinary upload successful:', result?.secure_url);
+            resolve(result?.secure_url || '');
           }
         }
-      ).end(buffer)
-    })
+      ).end(buffer);
+    });
   } catch (error) {
-    throw new Error('Failed to upload image to Cloudinary')
+    console.error('Error in uploadToCloudinary:', error);
+    throw new Error('Failed to upload image to Cloudinary');
   }
 }
 
